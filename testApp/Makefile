@@ -6,3 +6,6 @@ build-run:
 
 update-run:
 	transcc_winnt -update -run -target="Desktop_Game_(Glfw3)" main.monkey
+
+linux-build-run:
+	transcc_linux -update -run -target="Desktop_Game_(Glfw3)" main.monkey

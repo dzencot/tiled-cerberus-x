@@ -6,9 +6,11 @@ Import grid
 
 Class Tiled
 
+  Field test:Int
+
 	Method New()
-		width = 0
-		height = 0
+		widthMap = 0
+		heightMap = 0
 		tileWidth = 0
 		tileHeight = 0
 		tiles = New List<Tile>
@@ -18,8 +20,8 @@ Class Tiled
 	Method LoadJSON:Void(dataMapString:String)
 		If dataMapString.Length() = 0 Return
 		Local js:= New JsonObject(dataMapString)
-		Self.width = js.GetInt("width")
-		Self.height = js.GetInt("height")
+		Self.widthMap = js.GetInt("width")
+		Self.heightMap = js.GetInt("height")
 		Self.tileWidth = js.GetInt("tilewidth")
 		Self.tileHeight = js.GetInt("tileheight")
 		Local allFrameCount:Int = 0
@@ -58,37 +60,35 @@ Class Tiled
 			EndIf
 			indexTile += countFrame
 		Next
-    #Rem
 		Local dataLayers:= JsonArray(JsonObject(js).Get("layers"))
-		Self.grid.Create(tileWidth, tileHeight, 0)
+		Self.grid.Create(widthMap, widthMap, dataLayers.Length())
 		For Local i:Int = 0 Until dataLayers.Length()
 			Local d:= JsonObject(dataLayers.Get(i))
 			Local name:String = d.GetString("name")
 			Local dataMap:= JsonArray(d.Get("data"))
 			Self.grid.AddLayer(name)
 			Local _i:Int = 0
-			For Local y:Int = 0 Until Self.height
-				For Local x:Int = 0 Until Self.width
+			For Local y:Int = 0 Until Self.heightMap
+				For Local x:Int = 0 Until Self.widthMap
 					Local value:Int = dataMap.GetInt(_i)
 					Self.grid.SetValue(x, y, name, value)
 					_i += 1
 				Next
 			Next
 		Next
-    #End
 	End
 
 	Method GetValue:Int(x:Int, y:Int, layer:String)
 		Return Self.grid.GetValue(x, y, layer)
 	End
 
-	Method GetImage:Image(x:Int, y:Int, layer:String)
+	Method GetFrame:Image(x:Int, y:Int, layer:String)
 		Local value:Int = Self.grid.GetValue(x, y, layer)
 		For Local i:Int = 0 Until Self.images.Length()
 			If value > Self.imagesFrames[i]
 				value = value - Self.imagesFrames[i]
 			Else
-				Return Self.images[i]
+				Return Self.images[i-1].GrabImage(0, 0, tileWidth, tileHeight, value)
 			EndIf
 		Next
     Error("Image not found")
@@ -108,11 +108,11 @@ Class Tiled
 	End
 
   Method GetWidth:Int()
-    Return Self.width
+    Return Self.widthMap
   End
 
   Method GetHeight:Int()
-    Return Self.height
+    Return Self.heightMap
   End
 
   Method GetTileWidth:Int()
@@ -132,8 +132,8 @@ Class Tiled
   End
 
 
-	Field width:Int
-	Field height:Int
+	Field widthMap:Int
+	Field heightMap:Int
 	Field tileWidth:Int
 	Field tileHeight:Int
 	Field images:Image[]

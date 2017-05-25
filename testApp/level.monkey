@@ -1,6 +1,6 @@
 Strict
 
-Import tiledparser.tiled
+Import tiled
 Import mojo.app
 
 Class Level Extends Tiled
@@ -17,7 +17,9 @@ Class Level Extends Tiled
   End
 
   Method Render:Void()
+    'DrawText(test, 0, 0)
     RenderAllLayers()
+    'DrawText(images.Length(), 0, 0)
   End
 
   Private
@@ -29,8 +31,8 @@ Class Level Extends Tiled
         Local drawCoorY:Int = y * tileHeight
         Local nameLayer:String = grid.GetNameLayer(0)
         Local value:Int = GetValue(x, y, nameLayer)
-        'Local image:Image = GetImage(x, y, nameLayer)
-        'DrawImage(image, drawCoorX, drawCoorY)
+        Local image:Image = GetFrame(x, y, nameLayer)
+        DrawImage(image, drawCoorX, drawCoorY)
         DrawText(value, drawCoorX, drawCoorY)
       Next
     Next
