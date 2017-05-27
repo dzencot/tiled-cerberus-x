@@ -3,173 +3,167 @@ Import brl.json
 Import mojo.graphics
 
 Import grid
+Import myArray.array_push
 
 Class Tiled
 
-  Field test:Int
+  Field test:String[] = New String[0]
+  Field test2:Int
 
 	Method New()
 		widthMap = 0
 		heightMap = 0
-		tileWidth = 0
-		tileHeight = 0
+		widthTile = 0
+		heightTile = 0
 		tiles = New List<Tile>
 		grid = New Grid
-	End
+	End Method
 
-	Method LoadJSON:Void(dataMapString:String)
-		If dataMapString.Length() = 0 Return
-		Local js:= New JsonObject(dataMapString)
-		Self.widthMap = js.GetInt("width")
-		Self.heightMap = js.GetInt("height")
-		Self.tileWidth = js.GetInt("tilewidth")
-		Self.tileHeight = js.GetInt("tileheight")
-		Local allFrameCount:Int = 0
-		Local tilesets:= JsonArray(JsonObject(js).Get("tilesets"))
-		Local indexTile:Int = 0
-		For Local i:Int = 0 Until tilesets.Length()
-			Local d:= JsonObject(tilesets.Get(i))
-      If (Self.tileWidth = 0 Or Self.tileHeight = 0)
-        Local message:String = "tileWidth and tileHeight must be not zero: " + Self.tileWidth + " " + Self.tileHeight
-        Print(message)
-        Error(message)
-      EndIf
-			Local countFrame:Int = d.GetInt("imagewidth") * d.GetInt("imageheight") / (Self.tileWidth * Self.tileHeight)
-			allFrameCount += countFrame
-			Local pathImage:String = d.GetString("image")
-			pathImage = pathImage.Replace("/", "")
-			pathImage = pathImage.Replace("..", "")
-			Self.images = Self.images.Resize(images.Length() +1)
-			Self.images[i] = LoadImage(pathImage, tileWidth, tileHeight, countFrame)
-			Self.imagesFrames = Self.imagesFrames.Resize(imagesFrames.Length() +1)
-			Self.imagesFrames[i] = countFrame
-			Local tileProperties:= JsonObject(d.Get("tileproperties"))
-			If tileProperties Then
-				For Local js1:= EachIn tileProperties.GetData()
-					Local newTile:= New Tile
-					Local key:= js1.Key
-					newTile.id = Int(key) + indexTile + 1
-					Local jsNV:= JsonObject(js1.Value())
-					For Local newJS:= EachIn jsNV.GetData()
-						Local nameParJS:String = newJS.Key
-						Local valueParJS:Int = Int(jsNV.GetString(nameParJS))
-						newTile.AddParametr(nameParJS, valueParJS)
-					Next
-					tiles.AddLast(newTile)
-				Next
-			EndIf
-			indexTile += countFrame
-		Next
-		Local dataLayers:= JsonArray(JsonObject(js).Get("layers"))
-		Self.grid.Create(widthMap, widthMap, dataLayers.Length())
-		For Local i:Int = 0 Until dataLayers.Length()
-			Local d:= JsonObject(dataLayers.Get(i))
-			Local name:String = d.GetString("name")
-			Local dataMap:= JsonArray(d.Get("data"))
-			Self.grid.AddLayer(name)
-			Local _i:Int = 0
-			For Local y:Int = 0 Until Self.heightMap
-				For Local x:Int = 0 Until Self.widthMap
-					Local value:Int = dataMap.GetInt(_i)
-					Self.grid.SetValue(x, y, name, value)
-					_i += 1
-				Next
-			Next
-		Next
-	End
+  Method ParseJSON:Void(dataString:String)
+    If dataString.Length() = 0
+      Error("Data is empty")
+      Return
+    EndIf
 
-	Method GetValue:Int(x:Int, y:Int, layer:String)
-		Return Self.grid.GetValue(x, y, layer)
-	End
+    Local jsonObject:JsonObject = New JsonObject(dataString)
 
-	Method GetFrame:Image(x:Int, y:Int, layer:String)
-		Local value:Int = Self.grid.GetValue(x, y, layer)
-		For Local i:Int = 0 Until Self.images.Length()
-			If value > Self.imagesFrames[i]
-				value = value - Self.imagesFrames[i]
-			Else
-				Return Self.images[i-1].GrabImage(0, 0, tileWidth, tileHeight, value)
-			EndIf
-		Next
-    Error("Image not found")
-    Return New Image
-	End
+    Self.widthMap = jsonObject.GetInt("width")
+    Self.heightMap = jsonObject.GetInt("height")
+    Self.widthTile = jsonObject.GetInt("tilewidth")
+    Self.heightTile = jsonObject.GetInt("tileheight")
+	End Method
 
-	Method GetTileParametr:Int(id:Int, parametr:String)
-		For Local i:Int = 0 Until Self.tiles.Count()
-			If i = id
-				For Local j:Int = 0 Until Self.tiles.parametrs.Length()
-					If Self.tiles.parametrs[j] = parametr
-						Return Self.tiles.parametrs_value[j]
-					EndIf
-				Next
-			EndIf
-		Next
-	End
+  Method AddTile:Void(idTile:Int)
+    For Local tile:Tile = EachIn Self.tiles
+      If tile.GetId() = idTile
+        Error("Tile " + idTile + " already exsist")
+        Return
+      End If
+    Next
+    Local tile:Tile = New Tile(idTile)
+    Self.tiles.AddLast(tile)
+  End Method
 
-  Method GetWidth:Int()
+  Method SetPropertieTile:Void(idTile:Int, namePropertie:String, valuePropertie:Int)
+    Local tile:Tile = GetTile(idTile)
+    tile.SetPropertie(namePropertie, valuePropertie)
+  End Method
+
+  Method GetPropertieTile:Int(idTile:Int, namePropertie:String)
+    Local tile:Tile = GetTile(idTile)
+    Return tile.GetPropertie(namePropertie)
+	End Method
+    
+  Method GetWidthMap:Int()
     Return Self.widthMap
-  End
+  End Method
 
-  Method GetHeight:Int()
+  Method GetHeightMap:Int()
     Return Self.heightMap
-  End
+  End Method
 
-  Method GetTileWidth:Int()
-    Return Self.tileWidth
-  End
+  Method GetWidthTile:Int()
+    Return Self.widthTile
+  End Method
 
-  Method GetTileHeight:Int()
-    Return Self.tileHeight
-  End
+  Method GetHeightTile:Int()
+    Return Self.heightTile
+  End Method
 
   Method GetCountLayers:Int()
     Return Self.grid.GetZ()
-  End
+  End Method
 
   Method GetNameLayer:String(index:Int)
     Return Self.grid.GetNameLayer(index)
-  End
+  End Method
+
+  Private
+
+  Method GetTile:Tile(idTile:Int)
+    For Local tile:Tile = EachIn Self.tiles
+      If tile.GetId() = idTile
+        Return tile
+      End If
+    Next
+    Error("Tile " + idTile + " not found")
+    Return New Tile()
+  End Method
+
 
 
 	Field widthMap:Int
 	Field heightMap:Int
-	Field tileWidth:Int
-	Field tileHeight:Int
+	Field widthTile:Int
+	Field heightTile:Int
 	Field images:Image[]
 	Field imagesFrames:Int[]
 	Field tiles:List<Tile>
 	Field grid:Grid
 
-End
+  Method GetTilesFromJson:List<Tile>(tileSets:JsonArray)
+
+  End Method
+
+End Class
 
 Private
 
 Class Tile
-	Field id:Int
-	Field parametrs:String[]
-	Field parametrs_value:Int[]
 
-	Method AddParametr:Void(_parametr:String, _value:Int)
-		For Local i:Int = 0 Until parametrs.Length()
-			If parametrs[i] = _parametr Then
-				parametrs_value[i] = _value
-				Return
-			EndIf
-		Next
-		parametrs = parametrs.Resize(parametrs.Length() +1)
-		parametrs[parametrs.Length() -1] = _parametr
-		parametrs_value = parametrs_value.Resize(parametrs_value.Length() +1)
-		parametrs_value[parametrs_value.Length() -1] = _value
-		Return
-	End
+  Method New(_id:Int)
+    Self.id = _id
+    Self.properties = New List<Propertie>
+  End Method
 
-	Method GetParametr:Int(_parametr:String)
-		For Local i:Int = 0 Until parametrs.Length()
-			If _parametr = parametrs[i] Then
-				Return parametrs_value[i]
-			EndIf
-		Next
+	Method SetPropertie:Void(_namePropertie:String, _value:Int)
+    For Local propertie:Propertie = EachIn properties
+      If propertie.GetNamePropertie() = _namePropertie
+        Error("Propertie " + _namePropertie + " already exist in tile: " + Self.id)
+        Return
+      End If
+    Next
+    Local nextPropertie:Propertie = New Propertie(_namePropertie, _value)
+    Self.properties.AddLast(nextPropertie)
+	End Method
+
+	Method GetPropertie:Int(_namePropertie:String)
+    For Local propertie:Propertie = EachIn properties
+      If propertie.GetNamePropertie() = _namePropertie
+        Return propertie.GetValuePropertie()
+      End If
+    Next
+    Error("Propertie " + _namePropertie + " not found in tile: " + Self.id)
 		Return 0
-	End
-End
+	End Method
+
+  Method GetId:Int()
+    Return Self.id
+  End Method
+
+  Private
+
+  Field id:Int
+  Field properties:List<Propertie>
+
+End Class
+
+Class Propertie
+
+  Field namePropertie:String
+  Field valuePropertie:Int
+
+  Method New(_namePropertie:String, _valuePropertie:Int)
+    Self.namePropertie = _namePropertie
+    Self.valuePropertie = _valuePropertie
+  End Method
+
+  Method GetValuePropertie:Int()
+    Return Self.valuePropertie
+  End Method
+
+  Method GetNamePropertie:String()
+    Return Self.namePropertie
+  End Method
+
+End Class
