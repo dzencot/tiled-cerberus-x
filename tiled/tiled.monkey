@@ -7,15 +7,15 @@ Import myArray.array_push
 
 Class Tiled
 
-  Field test:String[] = New String[0]
-  Field test2:Int
+  Field testGrid:Grid
+  Field testMessage:String
 
 	Method New()
 		widthMap = 0
 		heightMap = 0
 		widthTile = 0
 		heightTile = 0
-		tiles = New List<Tile>
+		tilesets = New List<Tileset>
 		grid = New Grid
 	End Method
 
@@ -31,28 +31,23 @@ Class Tiled
     Self.heightMap = jsonObject.GetInt("height")
     Self.widthTile = jsonObject.GetInt("tilewidth")
     Self.heightTile = jsonObject.GetInt("tileheight")
+    SetGrid(jsonObject)
+    testGrid = grid
+    SetTilesets(jsonObject)
 	End Method
 
-  Method AddTile:Void(idTile:Int)
-    For Local tile:Tile = EachIn Self.tiles
-      If tile.GetId() = idTile
-        Error("Tile " + idTile + " already exsist")
-        Return
+  Method GetPropertieTile:String(idTile:Int, namePropertie:String)
+    For Local tileset:Tileset = EachIn tilesets
+      If tileset.IncludeTile(idTile)
+        Return tileset.GetPropertieTile(idTile, namePropertie)
       End If
     Next
-    Local tile:Tile = New Tile(idTile)
-    Self.tiles.AddLast(tile)
-  End Method
-
-  Method SetPropertieTile:Void(idTile:Int, namePropertie:String, valuePropertie:Int)
-    Local tile:Tile = GetTile(idTile)
-    tile.SetPropertie(namePropertie, valuePropertie)
-  End Method
-
-  Method GetPropertieTile:Int(idTile:Int, namePropertie:String)
-    Local tile:Tile = GetTile(idTile)
-    Return tile.GetPropertie(namePropertie)
+    Return ""
 	End Method
+
+  Method GetIdTile:Int(x:Int, y:Int, nameLayer:String)
+    Return Self.grid.GetValue(x, y, nameLayer)
+  End Method
     
   Method GetWidthMap:Int()
     Return Self.widthMap
@@ -80,17 +75,33 @@ Class Tiled
 
   Private
 
-  Method GetTile:Tile(idTile:Int)
-    For Local tile:Tile = EachIn Self.tiles
-      If tile.GetId() = idTile
-        Return tile
-      End If
+  Method SetGrid:Void(jsonObject:JsonObject)
+    Local layers:JsonArray = JsonArray(JsonObject(jsonObject).Get("layers"))
+    grid = New Grid(widthMap, heightMap, layers.Length())
+    For Local i:Int = 0 Until layers.Length()
+      Local layer:JsonObject = JsonObject(layers.Get(i))
+      Local nameLayer:String = layer.GetString("name")
+      grid.AddLayer(nameLayer)
+      Local dataLayer:JsonArray = JsonArray(layer.Get("data"))
+      Local indexData:Int = 0
+      For Local coorY:Int = 0 Until widthMap
+        For Local coorX:Int = 0 Until heightMap
+          Local value:Int = dataLayer.GetInt(indexData)
+          grid.SetValue(coorX, coorY, nameLayer, value)
+          indexData += 1
+        Next
+      Next
     Next
-    Error("Tile " + idTile + " not found")
-    Return New Tile()
   End Method
 
-
+  Method SetTilesets:Void(jsonObject:JsonObject)
+    Local jsonArray:JsonArray = JsonArray(JsonObject(jsonObject).Get("tilesets"))
+    For Local i:Int = 0 Until jsonArray.Length()
+      Local tilesetJson:JsonObject = JsonObject(jsonArray.Get(i))
+      Local tileset:Tileset = New Tileset(tilesetJson)
+      'Self.tilesets.AddLast(tileset)
+    Next
+  End Method
 
 	Field widthMap:Int
 	Field heightMap:Int
@@ -98,16 +109,87 @@ Class Tiled
 	Field heightTile:Int
 	Field images:Image[]
 	Field imagesFrames:Int[]
-	Field tiles:List<Tile>
+	Field tilesets:List<Tileset>
 	Field grid:Grid
-
-  Method GetTilesFromJson:List<Tile>(tileSets:JsonArray)
-
-  End Method
 
 End Class
 
 Private
+
+Class Tileset
+
+  Method New(jsonObject:JsonObject)
+    Self.tiles = New List<Tile>
+    Self.name = jsonObject.GetString("name")
+    Self.pathImage = jsonObject.GetString("image")
+    Self.widthImage = jsonObject.GetInt("imagewidth")
+    Self.heightImage = jsonObject.GetInt("imageheidht")
+    Self.widthTile = jsonObject.GetInt("tilewidth")
+    Self.heightTile = jsonObject.GetInt("tileheight")
+    If (Self.widthTile = 0 Or Self.heightTile = 0)
+      Error("Width or height tile is zero")
+    End If
+
+    Self.firstgid = jsonObject.GetInt("firstgid")
+    Self.lastgid = firstgid + (widthImage * heightImage) / (widthTile * heightTile)
+
+    Local propertiesData:JsonObject = JsonObject(jsonObject.Get("tileproperties"))
+    If propertiesData
+      SetProperties(propertiesData)
+    End If
+  End Method
+
+  Method GetPropertieTile:String(idTile:Int, namePropertie:String)
+    idTile = idTile - Self.firstgid
+    For Local tile:Tile = EachIn Self.tiles
+      If tile.GetId() = idTile
+        Return tile.GetPropertie(namePropertie)
+      End If
+    Next
+    Return ""
+  End Method
+
+  Method IncludeTile:Bool(idTile:Int)
+    Return idTile >= firstgid And idTile <= lastgid
+  End Method
+
+  Private
+
+  Method AddTile:Void(_tile:Tile)
+    Local idTile:Int = _tile.GetId()
+    For Local tile:Tile = EachIn Self.tiles
+      If tile.GetId() = idTile
+        Error("Tile " + idTile + " already exsist")
+        Return
+      End If
+    Next
+    Self.tiles.AddLast(_tile)
+  End Method
+
+  Method SetProperties:Void(jsonObject:JsonObject)
+    For Local tileJson:= EachIn jsonObject.GetData()
+      Local idTile:Int = Int(tileJson.Key())
+      Local tile:Tile = New Tile(idTile)
+      Local propertiesTile:JsonObject = JsonObject(tileJson.Value())
+      For Local propertie:= EachIn propertiesTile.GetData()
+        Local namePropertie:String = propertie.Key()
+        Local valuePropertie:String = propertiesTile.GetString(namePropertie)
+        tile.AddPropertie(namePropertie, valuePropertie)
+      Next
+      AddTile(idTile)
+    Next
+  End Method
+
+  Field name:String
+  Field pathImage:String
+  Field widthImage:Int
+  Field heightImage:Int
+  Field widthTile:Int
+  Field heightTile:Int
+  Field firstgid:Int
+  Field lastgid:Int
+  Field tiles:List<Tile>
+End Class
 
 Class Tile
 
@@ -116,7 +198,7 @@ Class Tile
     Self.properties = New List<Propertie>
   End Method
 
-	Method SetPropertie:Void(_namePropertie:String, _value:Int)
+	Method AddPropertie:Void(_namePropertie:String, _value:String)
     For Local propertie:Propertie = EachIn properties
       If propertie.GetNamePropertie() = _namePropertie
         Error("Propertie " + _namePropertie + " already exist in tile: " + Self.id)
@@ -127,14 +209,14 @@ Class Tile
     Self.properties.AddLast(nextPropertie)
 	End Method
 
-	Method GetPropertie:Int(_namePropertie:String)
+	Method GetPropertie:String(_namePropertie:String)
     For Local propertie:Propertie = EachIn properties
       If propertie.GetNamePropertie() = _namePropertie
         Return propertie.GetValuePropertie()
       End If
     Next
     Error("Propertie " + _namePropertie + " not found in tile: " + Self.id)
-		Return 0
+		Return ""
 	End Method
 
   Method GetId:Int()
@@ -151,14 +233,14 @@ End Class
 Class Propertie
 
   Field namePropertie:String
-  Field valuePropertie:Int
+  Field valuePropertie:String
 
-  Method New(_namePropertie:String, _valuePropertie:Int)
+  Method New(_namePropertie:String, _valuePropertie:String)
     Self.namePropertie = _namePropertie
     Self.valuePropertie = _valuePropertie
   End Method
 
-  Method GetValuePropertie:Int()
+  Method GetValuePropertie:String()
     Return Self.valuePropertie
   End Method
 

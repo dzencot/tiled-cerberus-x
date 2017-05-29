@@ -4,7 +4,7 @@ Class Grid
 
   Field test:String
 
-	Method Create:Void(a:Int, b:Int, c:Int)
+	Method New(a:Int, b:Int, c:Int)
 		Self.x = a
 		Self.y = b
 		Self.z = c
