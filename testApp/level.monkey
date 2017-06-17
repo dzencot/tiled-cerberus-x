@@ -12,7 +12,14 @@ Class Level Extends Tiled
   End Method
 
   Method Render:Void()
-        
+    For Local y:Int = 0 Until Self.GetHeightMap()
+      For Local x:Int = 0 Until Self.GetWidthMap()
+        Local idTile:Int = Self.GetIdTile(x, y, "background")
+        Local drawCoorX:Int = x * Self.GetWidthTile()
+        Local drawCoorY:Int = y * Self.GetHeightTile()
+        Self.RenderTile(idTile, drawCoorX, drawCoorY)
+      Next
+    Next
   End Method
 
   Private

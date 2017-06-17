@@ -73,6 +73,14 @@ Class Tiled
     Return Self.grid.GetNameLayer(index)
   End Method
 
+  Method RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)
+    For Local tileset:Tileset = EachIn tilesets
+      If tileset.IncludeTile(idTile)
+        tileset.RenderTile(idTile, coorX, coorY)
+      End If
+    Next
+  End Method
+
   Private
 
   Method SetGrid:Void(jsonObject:JsonObject)
@@ -99,6 +107,7 @@ Class Tiled
     For Local i:Int = 0 Until jsonArray.Length()
       Local tilesetJson:JsonObject = JsonObject(jsonArray.Get(i))
       Local tileset:Tileset = New Tileset(tilesetJson)
+      tileset.LoadTilesetImage()
       Self.tilesets.AddLast(tileset)
     Next
   End Method
@@ -162,6 +171,15 @@ Class Tileset
     Error("Tile " + idTile + " not found!")
     Return New Tile
   End Method
+  
+  Method LoadTilesetImage:Void()
+    Self.tilesetImage = LoadImage(Self.pathImage, Self.widthTile, Self.heightTile, Self.tilecount)
+  End Method
+
+  Method RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)
+    Local frame:Int = idTile - Self.firstgid
+    DrawImage(tilesetImage, coorX, coorY, frame)
+  End Method
 
   Private
 
@@ -190,13 +208,18 @@ Class Tileset
   End Method
 
   Field name:String
+
   Field pathImage:String
+  Field tilesetImage:Image
   Field widthImage:Int
   Field heightImage:Int
+
   Field widthTile:Int
   Field heightTile:Int
+
   Field firstgid:Int
   Field tilecount:Int
+
   Field tiles:List<Tile>
 End Class
 
