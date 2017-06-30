@@ -48,7 +48,7 @@ Class Tiled
   Method GetIdTile:Int(x:Int, y:Int, nameLayer:String)
     Return Self.grid.GetValue(x, y, nameLayer)
   End Method
-    
+
   Method GetWidthMap:Int()
     Return Self.widthMap
   End Method
@@ -171,7 +171,7 @@ Class Tileset
     Error("Tile " + idTile + " not found!")
     Return New Tile
   End Method
-  
+
   Method LoadTilesetImage:Void()
     Self.tilesetImage = LoadImage(Self.pathImage, Self.widthTile, Self.heightTile, Self.tilecount)
   End Method
