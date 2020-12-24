@@ -73,6 +73,10 @@ Class Tiled
     Return Self.grid.GetNameLayer(index)
   End Method
 
+  Method SetIdTile:Void(x:Int, y:Int, nameLayer:String, idTile:Int)
+    Self.grid.SetValue(x, y, nameLayer, idTile)
+  End Method
+
   Method RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)
     For Local tileset:Tileset = EachIn tilesets
       If tileset.IncludeTile(idTile)
