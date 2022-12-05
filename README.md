@@ -39,7 +39,7 @@ git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules
 
 ---
 
-`GetHeightMap:Int()`
+`tiled.GetHeightMap:Int()`
 
 ---
 
@@ -51,28 +51,29 @@ git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules
 * `y:Int` - y-coordinate
 * `nameLayer:String` - layer
 
+---
 
-`GetWidthTile:Int():Int`
+`tiled.GetWidthTile:Int():Int`
 
 ---
 
-`GetHeightTile:Int():Int`
+`tiled.GetHeightTile:Int():Int`
 
 ---
 
-`GetCountLayers:Int():Int`
+`tiled.GetCountLayers:Int():Int`
 
 ---
 
-`GetNameLayer:String(index:Int):String`
+`tiled.GetNameLayer:String(index:Int):String`
 
 ---
 
-`SetIdTile:Void(x:Int, y:Int, nameLayer:String, idTile:Int)`
+`tiled.SetIdTile:Void(x:Int, y:Int, nameLayer:String, idTile:Int)`
 
 ---
 
-`RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)`
+`tiled.RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)`
 
 ---
 
