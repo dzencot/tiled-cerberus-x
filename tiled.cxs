@@ -3,7 +3,6 @@ Import brl.json
 Import mojo.graphics
 
 Import grid
-Import myArray.array_push
 
 Global testMessage:String
 Class Tiled

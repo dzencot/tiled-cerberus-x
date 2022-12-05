@@ -1,7 +1,85 @@
+## Introduction
+
+[Tiled](https://thorbjorn.itch.io/tiled) is a simpliest map editor
+
+This is the module for [Cerberus-X](https://www.cerberus-x.com/) for using exported maps from Tiled
+
+## Requirements
+
+* [Cerberus-X](https://www.cerberus-x.com/cxDocs/Tutorials_Getting%20started.html)
+
+This module requires Cerberus-X modules (mojo and brl)
+
+## Installation
+
+Clone this repo in your directory Cerberus-X modules_ext
+
+```sh
+git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules_ext/tiled
+```
+
+## Usage
+
+* Create the map in Tiled Editor
+* Export map to json
+
+#### Map
+
+`Local tiled = new Tiled()`
+
+---
+
+`tiled.ParseJSON(dataLevel:string)`
+
+* `dataLevel:string` - json-file content
+
+---
+
+`tiled.GetWidthMap:Int():Int`
+
+---
+
+`GetHeightMap:Int()`
+
+#### Tiles
+
+`tiled.GetIdTile(x:Int, y:Int, nameLayer:String):Int`
+
+* `x:Int` - x-coordinate
+* `y:Int` - y-coordinate
+* `nameLayer:String` - layer
+
+
+`GetWidthTile:Int():Int`
+
+---
+
+`GetHeightTile:Int():Int`
+
+---
+
+`GetCountLayers:Int():Int`
+
+---
+
+`GetNameLayer:String(index:Int):String`
+
+---
+
+`SetIdTile:Void(x:Int, y:Int, nameLayer:String, idTile:Int)`
+
+---
+
+`RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)`
+
+## Example
+
+```
 Strict
 
 Import tiled
 Import mojo
+Import myArray.array_push
 
 Class Level Extends Tiled
 
@@ -27,7 +105,6 @@ Class Level Extends Tiled
         Self.RenderTile(idTile, drawCoorX, drawCoorY)
       Next
     Next
-    DrawText("X = " + Self.coorXCamera
   End Method
 
   Method Update:Void()
@@ -62,7 +139,6 @@ Class Level Extends Tiled
     Self.coorYCamera = 0;
   End Method
 
-  ' устанавливаются видимые тайлы(чтобы сократить проход по массиву)
   Method SetWindowTiles:Void()
     Local tileCoorX:Int = Self.coorXCamera / Self.GetWidthTile()
     Local tileCoorY:Int = Self.coorYCamera / Self.GetHeightTile()
@@ -91,4 +167,4 @@ Class Level Extends Tiled
   End Method
 
 End Class
-
+```
