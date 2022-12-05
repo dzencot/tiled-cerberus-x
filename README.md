@@ -25,27 +25,37 @@ git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules
 
 #### Map
 
-`Local tiled = new Tiled()`
+```
+Local tiled = new Tiled()
+```
 
 ---
 
-`tiled.ParseJSON(dataLevel:string)`
+```
+Method ParseJSON(dataLevel:string)
+```
 
 * `dataLevel:string` - json-file content
 
 ---
 
-`tiled.GetWidthMap:Int():Int`
+```
+Method GetWidthMap:Int():Int
+```
 
 ---
 
-`tiled.GetHeightMap:Int()`
+```
+Method GetHeightMap:Int()
+```
 
 ---
 
 #### Tiles
 
-`tiled.GetIdTile(x:Int, y:Int, nameLayer:String):Int`
+```
+Method GetIdTile(x:Int, y:Int, nameLayer:String):Int
+```
 
 * `x:Int` - x-coordinate
 * `y:Int` - y-coordinate
@@ -53,27 +63,39 @@ git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules
 
 ---
 
-`tiled.GetWidthTile:Int():Int`
+```
+Method GetWidthTile:Int():Int
+```
 
 ---
 
-`tiled.GetHeightTile:Int():Int`
+```
+Method GetHeightTile:Int():Int
+```
 
 ---
 
-`tiled.GetCountLayers:Int():Int`
+```
+Method GetCountLayers:Int():Int
+```
 
 ---
 
-`tiled.GetNameLayer:String(index:Int):String`
+```
+Method GetNameLayer:String(index:Int):String
+```
 
 ---
 
-`tiled.SetIdTile:Void(x:Int, y:Int, nameLayer:String, idTile:Int)`
+```
+Method SetIdTile:Void(x:Int, y:Int, nameLayer:String, idTile:Int)
+```
 
 ---
 
-`tiled.RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)`
+```
+Method RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)
+```
 
 ---
 
