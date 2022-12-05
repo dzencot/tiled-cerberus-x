@@ -41,6 +41,8 @@ git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules
 
 `GetHeightMap:Int()`
 
+---
+
 #### Tiles
 
 `tiled.GetIdTile(x:Int, y:Int, nameLayer:String):Int`
@@ -72,6 +74,8 @@ git clone https://github.com/dzencot/tiled-cerberus-x.git ${CERBERUSDIR}/modules
 
 `RenderTile:Void(idTile:Int, coorX:Int, coorY:Int)`
 
+---
+
 ## Example
 
 ```
@@ -79,7 +83,6 @@ Strict
 
 Import tiled
 Import mojo
-Import myArray.array_push
 
 Class Level Extends Tiled
 
@@ -162,9 +165,5 @@ Class Level Extends Tiled
 
   Field cWidth:Int
   Field cHeight:Int
-
-  Method RenderAllLayers:Void()
-  End Method
-
 End Class
 ```
